@@ -1,8 +1,0 @@
-2024-09-10 15:35:56 [main] INFO  com.example.ECom - ECom class instance created
-2024-09-10 15:36:25 [main] INFO  com.example.ECom - ECom class instance created
-2024-09-10 15:37:06 [main] INFO  com.example.ECom - ECom class instance created
-2024-09-10 15:37:11 [main] INFO  com.example.ECom - Category added: title
-2024-09-13 15:02:35 [main] INFO  com.example.ECom - ECom class instance created
-2024-09-13 15:02:47 [main] INFO  com.example.ECom - ECom class instance created
-2024-09-13 15:44:09 [main] INFO  com.example.ECom - ECom class instance created
-2024-09-13 15:54:02 [main] INFO  com.example.ECom - ECom class instance created
