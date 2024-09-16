@@ -6,6 +6,7 @@ import com.example.utils.Taxable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 public class Product implements Reviewable, Taxable, Discountable {
     private String title;
@@ -90,6 +91,53 @@ public class Product implements Reviewable, Taxable, Discountable {
         return price + vatAmount;
     }
 
+
+    public static Product fromString(String productData, Set<Category> availableCategories) {
+        String[] lines = productData.split("\n");
+        for(String str : lines){
+            System.out.println(str);
+        }
+
+        if (lines.length < 4) {
+            throw new IllegalArgumentException("Invalid Product data: " + productData);
+        }
+
+        String title = lines[0].replace("Title:", "").trim();
+
+        String priceString = lines[1].replace("Price:", "").replace(" (without VAT)", "").trim();
+        double price;
+        try {
+            price = Double.parseDouble(priceString);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Invalid price format: " + priceString, e);
+        }
+
+        String stockQuantityString = lines[3].replace("Stock Quantity:", "").trim();
+        int stockQuantity;
+        try {
+            stockQuantity = Integer.parseInt(stockQuantityString);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Invalid stock quantity format: " + stockQuantityString, e);
+        }
+
+        String categoryName = lines[4].replace("Category:", "").trim();
+        Category category = getCategoryByName(categoryName, availableCategories);
+        if (category == null) {
+            throw new IllegalArgumentException("Category not found: " + categoryName);
+        }
+
+        return new Product(title, price, stockQuantity, category);
+    }
+
+    private static Category getCategoryByName(String name, Set<Category> categories) {
+        for (Category category : categories) {
+            if (category.getTitle().equalsIgnoreCase(name)) {
+                return category;
+            }
+        }
+        return null;
+    }
+
     @Override
     public String toString() {
         StringBuilder productInfo = new StringBuilder("Title: " + title + '\n' +
@@ -100,12 +148,17 @@ public class Product implements Reviewable, Taxable, Discountable {
                 "Average Rating: " + getAverageRating() + "/5" + '\n' +
                 "Reviews:\n");
 
-        for (Review review : reviews) {
-            productInfo.append(review.toString()).append("\n\n");
+        if (reviews != null && !reviews.isEmpty()) {
+            for (Review review : reviews) {
+                productInfo.append(review.toString()).append("\n\n");
+            }
+        } else {
+            productInfo.append("No reviews available.\n");
         }
 
         return productInfo.toString();
     }
+
 
     public void setTitle(String title) {
         this.title = title;

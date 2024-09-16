@@ -1,0 +1,10 @@
+Title: book
+Price: 123.0 (without VAT)
+Price with VAT: 145.14
+Stock Quantity: 123
+Category: books
+VAT: 18.0 %
+Average Rating: 0.0/5
+Reviews:
+No reviews available.
+

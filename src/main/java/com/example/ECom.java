@@ -1,5 +1,6 @@
 package com.example;
 
+import com.example.fileHandler.FileHandler;
 import com.example.order.Order;
 import com.example.custom.CustomLinkedList;
 import com.example.exception.*;
@@ -11,20 +12,19 @@ import com.example.user.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.*;
 
 public class ECom implements Searchable {
     private static final Logger LOGGER = LoggerFactory.getLogger(ECom.class);
-
     private List<Order> orders;
     private List<User> users;
-
-    // I used set for categories, so that I could store only unique categories
     private Set<Category> categories;
-
-    // I used map here to store the products with its stockCount
     private Map<Product, Integer> products;
     private static int EComInstance;
+
+    private final FileHandler fileHandler = new FileHandler();
+
 
     public ECom(List<Order> orders, List<User> users, Set<Category> categories) {
         this.orders = orders;
@@ -41,12 +41,27 @@ public class ECom implements Searchable {
         this.categories = new HashSet<>();
         this.products = new HashMap<>();
         EComInstance++;
+        loadData();
         LOGGER.info("ECom class instance created");
+    }
+
+    private void loadData() {
+        try {
+            this.categories = fileHandler.loadCategories();
+            this.products = fileHandler.loadProducts();
+        } catch (IOException e) {
+            LOGGER.error("Error loading data: " + e.getMessage());
+        }
     }
 
     public void addOrder(Order order) {
         this.orders.add(order);
         LOGGER.info("Order added: " + order.toString());
+        try {
+            fileHandler.saveOrder(order);
+        } catch (IOException e) {
+            LOGGER.error("Error saving order: " + e.getMessage());
+        }
     }
 
     public void addUser(User user) {
@@ -55,6 +70,11 @@ public class ECom implements Searchable {
         }
         this.users.add(user);
         LOGGER.info("User added successfully.");
+        try {
+            fileHandler.saveUser(user);
+        } catch (IOException e) {
+            LOGGER.error("Error saving user: " + e.getMessage());
+        }
     }
 
     public void addCategory(Category category) {
@@ -63,6 +83,11 @@ public class ECom implements Searchable {
         }
         if (categories.add(category)) {
             LOGGER.info("Category added: " + category.getTitle());
+            try {
+                fileHandler.saveCategory(category);
+            } catch (IOException e) {
+                LOGGER.error("Error saving category: " + e.getMessage());
+            }
         } else {
             System.out.println("Category already exists: " + category.getTitle());
         }
@@ -77,6 +102,11 @@ public class ECom implements Searchable {
         }
         this.products.put(product, stockQuantity);
         LOGGER.info("Product added successfully with stock quantity: " + stockQuantity);
+        try {
+            fileHandler.saveProduct(product);
+        } catch (IOException e) {
+            LOGGER.error("Error saving product: " + e.getMessage());
+        }
     }
 
     @Override
@@ -122,7 +152,7 @@ public class ECom implements Searchable {
         if (categories.isEmpty()) {
             System.out.println("The list of categories is empty");
         } else {
-            categories.forEach(System.out::println);
+            categories.forEach(category -> System.out.println(category + "\n"));
         }
     }
 
@@ -132,8 +162,7 @@ public class ECom implements Searchable {
         } else {
             for (Map.Entry<Product, Integer> entry : products.entrySet()) {
                 Product product = entry.getKey();
-                int stock = entry.getValue();
-                System.out.println(product + ", Stock: " + stock);
+                System.out.println(product +  "\n");
             }
         }
     }

@@ -1,5 +1,6 @@
 package com.example.product;
 
+import java.util.Arrays;
 import java.util.Objects;
 
 public class Category {
@@ -31,10 +32,27 @@ public class Category {
         return vat;
     }
 
+    public static Category fromString(String s) {
+        String[] lines = s.split("\n");
+
+        if (lines.length < 2) {
+            throw new IllegalArgumentException("Invalid Category data: " + s);
+        }
+
+        String categoryTitle = lines[0].replace("Category:", "").trim();
+
+        String vatString = lines[1].replace("VAT:", "").replace("%", "").trim();
+        double vat = Double.parseDouble(vatString);
+
+        return new Category(categoryTitle, vat);
+    }
+
+
+
     @Override
     public String toString() {
         return "Category: " + title + '\n' +
-                "VAT: " + vat + "%";
+                "VAT: " + vat + " %";
     }
 
     @Override

@@ -36,7 +36,7 @@ public class UserUtils {
             if (addressParts.length == 4) {
                 address = new Address(addressParts[0], addressParts[1], addressParts[2], addressParts[3]);
             } else {
-                System.out.println("Invalid address format. Please enter in the format: street, city, postal code, country.");
+                System.out.println("Invalid address format. Please enter in the format: street, city, postal code, country");
             }
         }
 
@@ -68,7 +68,7 @@ public class UserUtils {
                 accountBalance = Double.parseDouble(balanceInput);
                 break;
             } catch (NumberFormatException e) {
-                System.out.println("Invalid input. Please enter a valid number.");
+                System.out.println("Invalid input. Please enter a valid number");
             }
         }
 
@@ -99,7 +99,7 @@ public class UserUtils {
             if ("SYSTEM_ADMIN".equalsIgnoreCase(inputRole) || "MANAGER".equalsIgnoreCase(inputRole)) {
                 role = inputRole.toUpperCase();
             } else {
-                System.out.println("Invalid role. Please enter 'SYSTEM_ADMIN' or 'MANAGER'.");
+                System.out.println("Invalid role. Please enter 'SYSTEM_ADMIN' or 'MANAGER'");
             }
         }
 
@@ -113,40 +113,66 @@ public class UserUtils {
 
     public static Product createProduct(Set<Category> categories) {
         Scanner scanner = new Scanner(System.in);
-        System.out.print("Enter product title: ");
-        String title = scanner.nextLine();
 
-        double price = 0.0;
+        String title;
         while (true) {
-            System.out.print("Enter product price: ");
-            try {
-                price = Double.parseDouble(scanner.nextLine());
+            System.out.print("Enter product title (up to 30 characters, no special symbols): ");
+            title = scanner.nextLine();
+
+            if (title.length() > 30) {
+                System.out.println("Title is too long. It should be up to 30 characters");
+            } else if (!title.matches("[a-zA-Z0-9 ]+")) {
+                System.out.println("Title contains invalid characters. Please use only letters, numbers, and spaces");
+            } else {
                 break;
-            } catch (NumberFormatException e) {
-                System.out.println("Invalid input. Please enter a valid price.");
             }
         }
 
-        int stockQuantity = 0;
+        double price;
         while (true) {
-            System.out.print("Enter stock quantity: ");
+            System.out.print("Enter product price (must be greater than 0 and less than 10 000): ");
+            try {
+                price = Double.parseDouble(scanner.nextLine());
+
+                if (price <= 0) {
+                    System.out.println("Price must be greater than zero. Please enter a valid price");
+                } else if (price > 10000) {
+                    System.out.println("Price seems too high. Please enter a reasonable price (between 0 and 10 000)");
+                } else {
+                    break;
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid input. Please enter a valid price (e.g., 12.50)");
+            }
+        }
+
+        int stockQuantity;
+        while (true) {
+            System.out.print("Enter stock quantity (must be between 0 and 10,000): ");
             try {
                 stockQuantity = Integer.parseInt(scanner.nextLine());
-                break;
+
+                if (stockQuantity < 0) {
+                    System.out.println("Stock quantity cannot be negative. Please enter a valid quantity (0 or higher)");
+                } else if (stockQuantity > 10000) {
+                    System.out.println("Stock quantity seems too high. Please enter a reasonable quantity (between 0 and 10 000)");
+                } else {
+                    break;
+                }
             } catch (NumberFormatException e) {
-                System.out.println("Invalid input. Please enter a valid stock quantity.");
+                System.out.println("Invalid input. Please enter a valid stock quantity (e.g. 50)");
             }
         }
 
         System.out.println("Choose a category:");
         List<Category> categoryList = new ArrayList<>(categories);
         for (int i = 0; i < categoryList.size(); i++) {
-            System.out.println(i + ": " + categoryList.get(i));
+            System.out.println("\n" + i + ": " + categoryList.get(i) + "\n");
         }
 
         Category category = null;
         while (category == null) {
-            System.out.print("Enter category index: ");
+            System.out.print("Enter category index (between 0 and " + (categoryList.size() - 1) + "): ");
             try {
                 int categoryIndex = Integer.parseInt(scanner.nextLine());
                 if (categoryIndex >= 0 && categoryIndex < categoryList.size()) {
@@ -155,7 +181,7 @@ public class UserUtils {
                     System.out.println("Invalid index. Please enter a number between 0 and " + (categoryList.size() - 1));
                 }
             } catch (NumberFormatException e) {
-                System.out.println("Invalid input. Please enter a number.");
+                System.out.println("Invalid input. Please enter a number between 0 and " + (categoryList.size() - 1));
             }
         }
 
@@ -164,19 +190,39 @@ public class UserUtils {
         return product;
     }
 
+
+
     public static Category createCategory() {
         Scanner scanner = new Scanner(System.in);
-        System.out.print("Enter category name: ");
-        String categoryName = scanner.nextLine();
 
-        double vat = 0.0;
+        String categoryName;
         while (true) {
-            System.out.print("Enter VAT percentage: ");
+            System.out.print("Enter category name (up to 30 characters, no special symbols): ");
+            categoryName = scanner.nextLine();
+
+            if (categoryName.length() > 30) {
+                System.out.println("Category name is too long. It should be up to 30 characters");
+            } else if (!categoryName.matches("[a-zA-Z0-9 ]+")) {
+                System.out.println("Category name contains invalid characters. Please use only letters, numbers, and spaces");
+            } else {
+                break;
+            }
+        }
+
+        double vat;
+        while (true) {
+            System.out.print("Enter VAT percentage (between 0 and 100): ");
             try {
                 vat = Double.parseDouble(scanner.nextLine());
-                break;
+                if (vat < 0) {
+                    System.out.println("VAT percentage cannot be negative. Please enter a valid percentage (0 or higher)");
+                } else if (vat > 100) {
+                    System.out.println("VAT percentage cannot exceed 100. Please enter a percentage between 0 and 100");
+                } else {
+                    break;
+                }
             } catch (NumberFormatException e) {
-                System.out.println("Invalid input. Please enter a valid number for VAT.");
+                System.out.println("Invalid input. Please enter a valid number for VAT (e.g. 18.0)");
             }
         }
 
@@ -185,12 +231,4 @@ public class UserUtils {
         return category;
     }
 
-    public static void printCategoryList(Category[] categories) {
-        System.out.println("Category List:");
-        for (Category category : categories) {
-            if (category != null) {
-                System.out.println(category);
-            }
-        }
-    }
 }

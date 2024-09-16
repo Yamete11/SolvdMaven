@@ -1,0 +1,4 @@
+Category: electronics
+VAT: 12.0 %
+Category: books
+VAT: 18.0 %
