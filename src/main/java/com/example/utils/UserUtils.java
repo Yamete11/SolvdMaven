@@ -9,16 +9,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 public class UserUtils {
 
     public static boolean validateUser(User user) {
         boolean isEmailValid = user.getEmail().contains("@") && user.getEmail().contains(".");
-        boolean isPasswordValid = user.getPassword().length() >= 8;
+        boolean isPasswordValid = user.getPassword().length() >= 6;
         return isEmailValid && isPasswordValid;
     }
 
-    public static Customer createNewCustomer() {
+    /*public static Customer createNewCustomer() {
         Scanner scanner = new Scanner(System.in);
 
         System.out.print("Enter customer email: ");
@@ -81,34 +82,80 @@ public class UserUtils {
 
         System.out.println("Customer created: " + newCustomer);
         return newCustomer;
-    }
+    }*/
 
     public static Admin createNewAdmin() {
         Scanner scanner = new Scanner(System.in);
-        System.out.print("Enter admin email: ");
-        String email = scanner.nextLine();
-        System.out.print("Enter admin password: ");
-        String password = scanner.nextLine();
-        System.out.print("Enter admin login: ");
-        String login = scanner.nextLine();
 
-        String role = null;
-        while (role == null) {
-            System.out.print("Enter admin role (SYSTEM_ADMIN, MANAGER): ");
-            String inputRole = scanner.nextLine();
-            if ("SYSTEM_ADMIN".equalsIgnoreCase(inputRole) || "MANAGER".equalsIgnoreCase(inputRole)) {
-                role = inputRole.toUpperCase();
+        String email;
+        while (true) {
+            System.out.print("Enter admin email: ");
+            email = scanner.nextLine();
+            if (isValidEmail(email)) {
+                break;
             } else {
-                System.out.println("Invalid role. Please enter 'SYSTEM_ADMIN' or 'MANAGER'");
+                System.out.println("Invalid email format. Please enter a valid email");
             }
         }
 
-        System.out.print("Enter admin secret word: ");
-        String secretWord = scanner.nextLine();
+        String password;
+        while (true) {
+            System.out.print("Enter admin password (minimum 6 characters): ");
+            password = scanner.nextLine();
+            if (password.length() >= 6) {
+                break;
+            } else {
+                System.out.println("Password is too short. Please enter a password with at least 6 characters");
+            }
+        }
+
+        String login;
+        while (true) {
+            System.out.print("Enter admin login (no spaces): ");
+            login = scanner.nextLine();
+            if (!login.trim().isEmpty() && !login.contains(" ")) {
+                break;
+            } else {
+                System.out.println("Login is invalid. It must not contain spaces and should not be empty");
+            }
+        }
+
+        Role role = null;
+        while (role == null) {
+            System.out.println("Select admin role:");
+            for (int i = 0; i < Role.values().length; i++) {
+                System.out.println((i + 1) + ". " + Role.values()[i]);
+            }
+            System.out.print("Enter the corresponding number: ");
+            String input = scanner.nextLine();
+            try {
+                int roleIndex = Integer.parseInt(input) - 1;
+                role = Role.values()[roleIndex];
+            } catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
+                System.out.println("Invalid input. Please select a valid role number.");
+            }
+        }
+
+        String secretWord;
+        while (true) {
+            System.out.print("Enter admin secret word: ");
+            secretWord = scanner.nextLine();
+            if (!secretWord.trim().isEmpty()) {
+                break;
+            } else {
+                System.out.println("Secret word cannot be empty. Please enter a valid secret word");
+            }
+        }
 
         Admin newAdmin = new Admin(email, password, login, role, secretWord);
         System.out.println("Admin data: " + newAdmin);
         return newAdmin;
+    }
+
+    private static boolean isValidEmail(String email) {
+        String emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$";
+        Pattern pattern = Pattern.compile(emailRegex);
+        return pattern.matcher(email).matches();
     }
 
     public static Product createProduct(Set<Category> categories) {

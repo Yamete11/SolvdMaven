@@ -49,12 +49,13 @@ public class ECom implements Searchable {
         try {
             this.categories = fileHandler.loadCategories();
             this.products = fileHandler.loadProducts();
+            this.users = fileHandler.loadUsers();
         } catch (IOException e) {
             LOGGER.error("Error loading data: " + e.getMessage());
         }
     }
 
-    public void addOrder(Order order) {
+   /* public void addOrder(Order order) {
         this.orders.add(order);
         LOGGER.info("Order added: " + order.toString());
         try {
@@ -62,7 +63,7 @@ public class ECom implements Searchable {
         } catch (IOException e) {
             LOGGER.error("Error saving order: " + e.getMessage());
         }
-    }
+    }*/
 
     public void addUser(User user) {
         if (user == null) {

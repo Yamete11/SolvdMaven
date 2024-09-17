@@ -7,7 +7,7 @@ import java.util.Scanner;
 
 public class Customer extends User implements Payable{
     private Address address;
-    private String paymentMethod;
+    private PaymentMethod paymentMethod;
     private CardDetails cardDetails;
     private double accountBalance;
 
@@ -71,11 +71,11 @@ public class Customer extends User implements Payable{
         this.address = address;
     }
 
-    public String getPaymentMethod() {
+    public PaymentMethod getPaymentMethod() {
         return paymentMethod;
     }
 
-    public void setPaymentMethod(String paymentMethod) {
+    public void setPaymentMethod(PaymentMethod paymentMethod) {
         this.paymentMethod = paymentMethod;
     }
 
@@ -89,16 +89,16 @@ public class Customer extends User implements Payable{
 
     @Override
     public String toString() {
-        String customerInfo = super.toString() +
-                "\nCustomer Details:\n" +
-                "  Address: " + address + "\n" +
-                "  Payment Method: " + paymentMethod;
+        StringBuilder customerInfo = new StringBuilder(super.toString())
+                .append("\nCustomer Details:\n")
+                .append("  Address: ").append(address).append("\n")
+                .append("  Payment Method: ").append(paymentMethod.getDescription());
 
-        if (PaymentMethod.CARD.equalsIgnoreCase(paymentMethod) && cardDetails != null) {
-            customerInfo += "\n  Card Details: " + cardDetails;
+        if (paymentMethod == PaymentMethod.CARD && cardDetails != null) {
+            customerInfo.append("\n  Card Details: ").append(cardDetails);
         }
 
-        return customerInfo;
+        return customerInfo.toString();
     }
 
     @Override

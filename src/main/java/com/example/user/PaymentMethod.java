@@ -1,6 +1,16 @@
 package com.example.user;
 
-public class PaymentMethod {
-    public static final String CARD = "Card Payment";
-    public static final String CASH = "Cash Payment";
+public enum PaymentMethod {
+    CARD("Card Payment"),
+    CASH("Cash Payment");
+
+    private final String description;
+
+    PaymentMethod(String description) {
+        this.description = description;
+    }
+
+    public String getDescription() {
+        return description;
+    }
 }

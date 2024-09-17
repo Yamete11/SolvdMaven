@@ -4,11 +4,11 @@ import java.util.Objects;
 import java.util.Scanner;
 
 public class Admin extends User {
-    private String role;
+    private Role role;
     private String secretWord;
     private static final double DISCOUNT_RATE = 0.50;
 
-    public Admin(String email, String password, String login, String role, String secretWord) {
+    public Admin(String email, String password, String login, Role role, String secretWord) {
         super(email, password, login);
         this.role = role;
         this.secretWord = secretWord;
@@ -39,6 +39,26 @@ public class Admin extends User {
         }
     }
 
+    public static Admin fromString(String s) {
+        String[] lines = s.split("\n");
+
+        if (lines.length < 4) {
+            throw new IllegalArgumentException("Invalid Admin data: " + s);
+        }
+
+        String email = lines[2].replace("Email:", "").trim();
+        String login = lines[3].replace("Login:", "").trim();
+
+        String roleLine = lines[5].replace("Role:", "").trim();
+        Role role = Role.fromString(roleLine.split(" ")[0].trim());
+
+        String secretWord = lines[6].replace("Secret Word:", "").trim();
+
+        String password = "***********";
+
+        return new Admin(email, password, login, role, secretWord);
+    }
+
     @Override
     public String toString() {
         return super.toString() + "\n" +
@@ -61,7 +81,7 @@ public class Admin extends User {
         return role.equals(admin.role) && secretWord.equals(admin.secretWord);
     }
 
-    public void setRole(String role) {
+    public void setRole(Role role) {
         this.role = role;
     }
 
@@ -69,7 +89,7 @@ public class Admin extends User {
         this.secretWord = secretWord;
     }
 
-    public String getRole() {
+    public Role getRole() {
         return role;
     }
 

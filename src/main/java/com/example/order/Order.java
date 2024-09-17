@@ -15,7 +15,7 @@ public class Order implements Taxable, Discountable {
     private double totalAmount;
     private Customer customer;
     private List<OrderItem> orderItems;
-    private String orderStatus;
+    private OrderStatus orderStatus;
     private double discountPercentage;
 
     public Order(Customer customer) {
@@ -82,7 +82,7 @@ public class Order implements Taxable, Discountable {
         return totalAmount;
     }
 
-    public void updateOrderStatus(String newStatus) {
+    public void updateOrderStatus(OrderStatus newStatus) {
         this.orderStatus = newStatus;
     }
 
@@ -102,7 +102,7 @@ public class Order implements Taxable, Discountable {
         return orderItems;
     }
 
-    public String getOrderStatus() {
+    public OrderStatus getOrderStatus() {
         return orderStatus;
     }
 

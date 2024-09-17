@@ -1,9 +1,19 @@
 package com.example.order;
 
-public class OrderStatus {
-    public static final String PROCESSING = "Processing";
-    public static final String SHIPPED = "Shipped";
-    public static final String DELIVERED = "Delivered";
-    public static final String CANCELLED = "Cancelled";
-    public static final String RETURNED = "Returned";
+public enum OrderStatus {
+    PROCESSING("Processing"),
+    SHIPPED("Shipped"),
+    DELIVERED("Delivered"),
+    CANCELLED("Cancelled"),
+    RETURNED("Returned");
+
+    private final String description;
+
+    OrderStatus(String description) {
+        this.description = description;
+    }
+
+    public String getDescription() {
+        return description;
+    }
 }

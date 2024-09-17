@@ -36,7 +36,7 @@ public class Main {
 
     private static void handleCommand(String command, ECom eCom) {
         switch (command) {
-            case "-cnc", "--create-new-customer" -> handleCreateNewCustomer(eCom);
+            //case "-cnc", "--create-new-customer" -> handleCreateNewCustomer(eCom);
             case "-cna", "--create-new-admin" -> handleCreateNewAdmin(eCom);
             case "-cc", "--create-category" -> handleCreateCategory(eCom);
             case "-cp", "--create-product" -> handleCreateProduct(eCom);
@@ -53,7 +53,7 @@ public class Main {
         }
     }
 
-    private static void handleCreateNewCustomer(ECom eCom) {
+    /*private static void handleCreateNewCustomer(ECom eCom) {
         Customer newCustomer = UserUtils.createNewCustomer();
         if (UserUtils.validateUser(newCustomer)) {
             try {
@@ -65,7 +65,7 @@ public class Main {
         } else {
             System.out.println("Invalid customer data.");
         }
-    }
+    }*/
 
     private static void handleCreateNewAdmin(ECom eCom) {
         Admin newAdmin = UserUtils.createNewAdmin();
