@@ -1,11 +1,16 @@
 package com.example.product;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.util.Arrays;
 import java.util.Objects;
 
 public class Category {
     private String title;
     private double vat;
+
+    public Category() {}
 
     public Category(String title, double vat) {
         this.title = title;
@@ -32,21 +37,15 @@ public class Category {
         return vat;
     }
 
-    public static Category fromString(String s) {
-        String[] lines = s.split("\n");
-
-        if (lines.length < 2) {
-            throw new IllegalArgumentException("Invalid Category data: " + s);
-        }
-
-        String categoryTitle = lines[0].replace("Category:", "").trim();
-
-        String vatString = lines[1].replace("VAT:", "").replace("%", "").trim();
-        double vat = Double.parseDouble(vatString);
-
-        return new Category(categoryTitle, vat);
+    public String toJson() throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.writeValueAsString(this);
     }
 
+    public static Category fromJson(String json) throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.readValue(json, Category.class);
+    }
 
 
     @Override

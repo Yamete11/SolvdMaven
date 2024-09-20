@@ -1,0 +1,2 @@
+{"title":"book","price":1000.0,"stockQuantity":5,"category":{"title":"book","vat":12.0},"reviews":[],"averageRating":0.0,"averageTaxRate":12.0}
+{"title":"Laptop","price":120.0,"stockQuantity":5,"category":{"title":"book","vat":12.0},"reviews":[],"averageRating":0.0,"averageTaxRate":12.0}

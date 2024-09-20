@@ -2,6 +2,9 @@ package com.example.product;
 
 import com.example.utils.Discountable;
 import com.example.utils.Taxable;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,6 +20,10 @@ public class Product implements Reviewable, Taxable, Discountable {
     private double taxRate;
     private double discountPercentage;
 
+    public Product() {
+        this.reviews = new ArrayList<>();
+    }
+
     public Product(String title, double price, int stockQuantity, Category category) {
         this.title = title;
         this.price = price;
@@ -27,11 +34,18 @@ public class Product implements Reviewable, Taxable, Discountable {
     }
 
     public Product(String title, double price, Category category) {
-        this.title = title;
-        this.price = price;
-        this.category = category;
-        this.reviews = new ArrayList<>();
-        this.taxRate = category.getVat();
+        this(title, price, 0, category);
+    }
+
+    public String toJson() throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.writeValueAsString(this);
+    }
+
+    public static Product fromJson(String json) throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        return mapper.readValue(json, Product.class);
     }
 
     @Override
@@ -63,7 +77,7 @@ public class Product implements Reviewable, Taxable, Discountable {
     }
 
     @Override
-    public void addReview(String reviewerName, String comment, int rating) {
+    public void addReview(String reviewerName, String comment, ReviewRating rating) {
         reviews.add(new Review(reviewerName, comment, rating));
     }
 
@@ -72,7 +86,7 @@ public class Product implements Reviewable, Taxable, Discountable {
         if (reviews.isEmpty()) return 0.0;
         double totalRating = 0.0;
         for (Review review : reviews) {
-            totalRating += review.getRating();
+            totalRating += review.getRating().getRating();
         }
         return totalRating / reviews.size();
     }
@@ -89,53 +103,6 @@ public class Product implements Reviewable, Taxable, Discountable {
     public double calculatePriceWithVAT() {
         double vatAmount = price * (category.getVat() / 100);
         return price + vatAmount;
-    }
-
-
-    public static Product fromString(String productData, Set<Category> availableCategories) {
-        String[] lines = productData.split("\n");
-        for(String str : lines){
-            System.out.println(str);
-        }
-
-        if (lines.length < 4) {
-            throw new IllegalArgumentException("Invalid Product data: " + productData);
-        }
-
-        String title = lines[0].replace("Title:", "").trim();
-
-        String priceString = lines[1].replace("Price:", "").replace(" (without VAT)", "").trim();
-        double price;
-        try {
-            price = Double.parseDouble(priceString);
-        } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("Invalid price format: " + priceString, e);
-        }
-
-        String stockQuantityString = lines[3].replace("Stock Quantity:", "").trim();
-        int stockQuantity;
-        try {
-            stockQuantity = Integer.parseInt(stockQuantityString);
-        } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("Invalid stock quantity format: " + stockQuantityString, e);
-        }
-
-        String categoryName = lines[4].replace("Category:", "").trim();
-        Category category = getCategoryByName(categoryName, availableCategories);
-        if (category == null) {
-            throw new IllegalArgumentException("Category not found: " + categoryName);
-        }
-
-        return new Product(title, price, stockQuantity, category);
-    }
-
-    private static Category getCategoryByName(String name, Set<Category> categories) {
-        for (Category category : categories) {
-            if (category.getTitle().equalsIgnoreCase(name)) {
-                return category;
-            }
-        }
-        return null;
     }
 
     @Override
@@ -159,7 +126,6 @@ public class Product implements Reviewable, Taxable, Discountable {
         return productInfo.toString();
     }
 
-
     public void setTitle(String title) {
         this.title = title;
     }
@@ -174,6 +140,7 @@ public class Product implements Reviewable, Taxable, Discountable {
 
     public void setCategory(Category category) {
         this.category = category;
+        this.taxRate = category.getVat();
     }
 
     public void setReviews(List<Review> reviews) {
@@ -215,5 +182,4 @@ public class Product implements Reviewable, Taxable, Discountable {
                 title.equals(product.title) &&
                 category.equals(product.category);
     }
-
 }

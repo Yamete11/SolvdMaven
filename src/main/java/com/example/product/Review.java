@@ -6,10 +6,10 @@ import java.util.Objects;
 public class Review {
     private String title;
     private String comment;
-    private int rating;
+    private ReviewRating rating;
     private final LocalDate reviewDate;
 
-    public Review(String title, String comment, int rating) {
+    public Review(String title, String comment, ReviewRating rating) {
         this.title = title;
         this.comment = comment;
         this.rating = rating;
@@ -32,11 +32,11 @@ public class Review {
         this.comment = comment;
     }
 
-    public int getRating() {
+    public ReviewRating getRating() {
         return rating;
     }
 
-    public void setRating(int rating) {
+    public void setRating(ReviewRating rating) {
         this.rating = rating;
     }
 

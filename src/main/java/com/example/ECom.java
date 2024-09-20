@@ -9,13 +9,20 @@ import com.example.product.Category;
 import com.example.product.Product;
 import com.example.user.User;
 
+import com.example.utils.LambdaFunctions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 public class ECom implements Searchable {
+    private Supplier<Stream<Product>> productStreamSupplier;
     private static final Logger LOGGER = LoggerFactory.getLogger(ECom.class);
     private List<Order> orders;
     private List<User> users;
@@ -31,6 +38,7 @@ public class ECom implements Searchable {
         this.users = users;
         this.categories = categories;
         this.products = new HashMap<>();
+        this.productStreamSupplier = () -> products.keySet().stream();
         EComInstance++;
         LOGGER.info("ECom class instance created");
     }
@@ -40,30 +48,33 @@ public class ECom implements Searchable {
         this.users = new ArrayList<>();
         this.categories = new HashSet<>();
         this.products = new HashMap<>();
+        this.productStreamSupplier = () -> products.keySet().stream();
         EComInstance++;
         loadData();
         LOGGER.info("ECom class instance created");
     }
 
     private void loadData() {
-        try {
-            this.categories = fileHandler.loadCategories();
-            this.products = fileHandler.loadProducts();
-            this.users = fileHandler.loadUsers();
-        } catch (IOException e) {
-            LOGGER.error("Error loading data: " + e.getMessage());
-        }
+        this.categories = fileHandler.loadCategories();
+        this.products = fileHandler.loadProducts();
     }
 
-   /* public void addOrder(Order order) {
+    public void addOrder(Order order) {
         this.orders.add(order);
         LOGGER.info("Order added: " + order.toString());
-        try {
-            fileHandler.saveOrder(order);
-        } catch (IOException e) {
-            LOGGER.error("Error saving order: " + e.getMessage());
-        }
-    }*/
+    }
+
+    public List<String> transformProducts(Function<Product, String> transformer) {
+        return productStreamSupplier.get()
+                .map(transformer)
+                .toList();
+    }
+
+    public List<Product> filterProductsByPrice(double minPrice) {
+        return productStreamSupplier.get()
+                .filter(product -> product.getPrice() >= minPrice)
+                .toList();
+    }
 
     public void addUser(User user) {
         if (user == null) {
@@ -71,11 +82,6 @@ public class ECom implements Searchable {
         }
         this.users.add(user);
         LOGGER.info("User added successfully.");
-        try {
-            fileHandler.saveUser(user);
-        } catch (IOException e) {
-            LOGGER.error("Error saving user: " + e.getMessage());
-        }
     }
 
     public void addCategory(Category category) {
@@ -84,11 +90,7 @@ public class ECom implements Searchable {
         }
         if (categories.add(category)) {
             LOGGER.info("Category added: " + category.getTitle());
-            try {
-                fileHandler.saveCategory(category);
-            } catch (IOException e) {
-                LOGGER.error("Error saving category: " + e.getMessage());
-            }
+            fileHandler.saveCategory(category);
         } else {
             System.out.println("Category already exists: " + category.getTitle());
         }
@@ -103,11 +105,7 @@ public class ECom implements Searchable {
         }
         this.products.put(product, stockQuantity);
         LOGGER.info("Product added successfully with stock quantity: " + stockQuantity);
-        try {
-            fileHandler.saveProduct(product);
-        } catch (IOException e) {
-            LOGGER.error("Error saving product: " + e.getMessage());
-        }
+        fileHandler.saveProduct(product);
     }
 
     @Override
@@ -124,9 +122,13 @@ public class ECom implements Searchable {
 
     @Override
     public List<Product> filterProductByCategory(String category) {
+        return filterProducts(product -> product.getCategory().getTitle().equalsIgnoreCase(category));
+    }
+
+    public List<Product> filterProducts(Predicate<Product> condition) {
         List<Product> result = new ArrayList<>();
         for (Product product : products.keySet()) {
-            if (product.getCategory().getTitle().equalsIgnoreCase(category)) {
+            if (condition.test(product)) {
                 result.add(product);
             }
         }
@@ -157,14 +159,11 @@ public class ECom implements Searchable {
         }
     }
 
-    public void printAllProducts() {
+    public void printAllProducts(Consumer<Product> productConsumer) {
         if (products.isEmpty()) {
             System.out.println("The list of products is empty");
         } else {
-            for (Map.Entry<Product, Integer> entry : products.entrySet()) {
-                Product product = entry.getKey();
-                System.out.println(product +  "\n");
-            }
+            products.forEach((product, stock) -> productConsumer.accept(product));
         }
     }
 
@@ -254,5 +253,22 @@ public class ECom implements Searchable {
         sb.append("==========================");
 
         return sb.toString();
+    }
+
+    public void LambdasMethods() {
+        System.out.println("Product prices:");
+        products.keySet().forEach(product ->
+                System.out.println(LambdaFunctions.getProductPrice.apply(product))
+        );
+
+        System.out.println("User emails:");
+        users.forEach(user ->
+                System.out.println(LambdaFunctions.getUserEmail.apply(user))
+        );
+
+        System.out.println("Formatted products:");
+        products.keySet().forEach(product ->
+                System.out.println(LambdaFunctions.formatProduct.apply(product))
+        );
     }
 }

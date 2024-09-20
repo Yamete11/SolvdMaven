@@ -5,31 +5,34 @@ import com.example.exception.InsufficientFundsException;
 import java.util.Objects;
 import java.util.Scanner;
 
-public class Customer extends User implements Payable{
+public class Customer extends User implements Payable {
     private Address address;
     private PaymentMethod paymentMethod;
     private CardDetails cardDetails;
     private double accountBalance;
+    private CustomerType customerType;
 
-    public Customer(String email, String password, String login, Address address, double accountBalance) {
+    public Customer(String email, String password, String login, Address address, double accountBalance, CustomerType customerType) {
         super(email, password, login);
         this.address = address;
         this.paymentMethod = PaymentMethod.CASH;
         this.cardDetails = null;
         this.accountBalance = accountBalance;
+        this.customerType = customerType;
     }
 
-    public Customer(String email, String password, String login, Address address, CardDetails cardDetails, double accountBalance) {
+    public Customer(String email, String password, String login, Address address, CardDetails cardDetails, double accountBalance, CustomerType customerType) {
         super(email, password, login);
         this.address = address;
         this.paymentMethod = PaymentMethod.CARD;
         this.cardDetails = cardDetails;
         this.accountBalance = accountBalance;
+        this.customerType = customerType;
     }
 
     @Override
     public String getAccountType() {
-        return "Customer Account";
+        return "Customer Account - " + customerType.getDescription();
     }
 
     @Override
@@ -87,12 +90,21 @@ public class Customer extends User implements Payable{
         this.cardDetails = cardDetails;
     }
 
+    public CustomerType getCustomerType() {
+        return customerType;
+    }
+
+    public void setCustomerType(CustomerType customerType) {
+        this.customerType = customerType;
+    }
+
     @Override
     public String toString() {
         StringBuilder customerInfo = new StringBuilder(super.toString())
                 .append("\nCustomer Details:\n")
                 .append("  Address: ").append(address).append("\n")
-                .append("  Payment Method: ").append(paymentMethod.getDescription());
+                .append("  Payment Method: ").append(paymentMethod.getDescription()).append("\n")
+                .append("  Customer Type: ").append(customerType.getDescription());
 
         if (paymentMethod == PaymentMethod.CARD && cardDetails != null) {
             customerInfo.append("\n  Card Details: ").append(cardDetails);
@@ -103,7 +115,7 @@ public class Customer extends User implements Payable{
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), address, paymentMethod);
+        return Objects.hash(super.hashCode(), address, paymentMethod, customerType);
     }
 
     @Override
@@ -113,7 +125,8 @@ public class Customer extends User implements Payable{
         if (!super.equals(o)) return false;
         Customer customer = (Customer) o;
         return Objects.equals(address, customer.address) &&
-                Objects.equals(paymentMethod, customer.paymentMethod);
+                Objects.equals(paymentMethod, customer.paymentMethod) &&
+                Objects.equals(customerType, customer.customerType);
     }
 
     @Override

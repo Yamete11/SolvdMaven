@@ -39,25 +39,6 @@ public class Admin extends User {
         }
     }
 
-    public static Admin fromString(String s) {
-        String[] lines = s.split("\n");
-
-        if (lines.length < 4) {
-            throw new IllegalArgumentException("Invalid Admin data: " + s);
-        }
-
-        String email = lines[2].replace("Email:", "").trim();
-        String login = lines[3].replace("Login:", "").trim();
-
-        String roleLine = lines[5].replace("Role:", "").trim();
-        Role role = Role.fromString(roleLine.split(" ")[0].trim());
-
-        String secretWord = lines[6].replace("Secret Word:", "").trim();
-
-        String password = "***********";
-
-        return new Admin(email, password, login, role, secretWord);
-    }
 
     @Override
     public String toString() {

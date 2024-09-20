@@ -5,12 +5,14 @@ import com.example.product.Product;
 import com.example.order.Order;
 import com.example.user.Customer;
 import com.example.user.Admin;
+import com.example.user.CustomerType;
 import com.example.utils.UserUtils;
 import com.example.exception.InvalidUserException;
 import com.example.exception.InvalidCategoryException;
 import com.example.exception.DuplicateProductException;
 import com.example.exception.ProductOutOfStockException;
 
+import java.util.List;
 import java.util.Scanner;
 
 public class Main {
@@ -32,52 +34,38 @@ public class Main {
                 handleCommand(command, eCom);
             }
         }
+
+
+
+        /*ECom eCom = new ECom();
+        eCom.printAllProducts(System.out::println);
+
+        List<Product> expensiveProducts = eCom.filterProductsByPrice(150.0);
+        expensiveProducts.forEach(System.out::println);*/
+
+        /*ECom eCom = new ECom();
+        eCom.printAllProducts(System.out::println);
+
+        List<String> productDescriptions = eCom.transformProducts(product ->
+                String.format("Product: %s, Price: %.2f, Stock: %d",
+                        product.getTitle(), product.getPrice(), product.getStockQuantity())
+        );
+
+        productDescriptions.forEach(System.out::println);*/
     }
 
     private static void handleCommand(String command, ECom eCom) {
         switch (command) {
-            //case "-cnc", "--create-new-customer" -> handleCreateNewCustomer(eCom);
-            case "-cna", "--create-new-admin" -> handleCreateNewAdmin(eCom);
             case "-cc", "--create-category" -> handleCreateCategory(eCom);
             case "-cp", "--create-product" -> handleCreateProduct(eCom);
             case "-pc", "--print-categories" -> eCom.printAllCategories();
-            case "-po", "--print-orders" -> eCom.printAllOrders();
-            case "-pu", "--print-users" -> eCom.printAllUsers();
-            case "-pp", "--print-products" -> eCom.printAllProducts();
+            case "-pp", "--print-products" -> eCom.printAllProducts(System.out::println);
             case "-h", "--help" -> displayHelpMessage();
             case "-q", "--quit" -> {
                 isRunning = false;
                 System.out.println("Exiting the program.");
             }
             default -> System.out.println("Unknown command: " + command);
-        }
-    }
-
-    /*private static void handleCreateNewCustomer(ECom eCom) {
-        Customer newCustomer = UserUtils.createNewCustomer();
-        if (UserUtils.validateUser(newCustomer)) {
-            try {
-                eCom.addUser(newCustomer);
-                System.out.println("Customer added successfully.");
-            } catch (InvalidUserException e) {
-                System.err.println("Error adding user: " + e.getMessage());
-            }
-        } else {
-            System.out.println("Invalid customer data.");
-        }
-    }*/
-
-    private static void handleCreateNewAdmin(ECom eCom) {
-        Admin newAdmin = UserUtils.createNewAdmin();
-        if (UserUtils.validateUser(newAdmin)) {
-            try {
-                eCom.addUser(newAdmin);
-                System.out.println("Admin added successfully.");
-            } catch (InvalidUserException e) {
-                System.err.println("Error adding admin: " + e.getMessage());
-            }
-        } else {
-            System.out.println("Invalid admin data.");
         }
     }
 
@@ -109,13 +97,9 @@ public class Main {
 
     private static void displayHelpMessage() {
         System.out.println("Commands:");
-        System.out.println("-cnc : --create-new-customer : Creates a new customer");
-        System.out.println("-cna : --create-new-admin : Creates a new admin");
         System.out.println("-cc : --create-category : Creates a new category");
         System.out.println("-cp : --create-product : Creates a new product");
         System.out.println("-pc : --print-categories : Print all categories");
-        System.out.println("-po : --print-orders : Print all orders");
-        System.out.println("-pu : --print-users : Print all users");
         System.out.println("-pp : --print-products : Print all products");
         System.out.println("-h : --help : Show this help message");
         System.out.println("-q : --quit : Quits the program.");
