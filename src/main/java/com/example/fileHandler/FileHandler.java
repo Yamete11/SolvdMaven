@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class FileHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(FileHandler.class);
@@ -52,16 +53,17 @@ public class FileHandler {
     public Set<Category> loadCategories() {
         try {
             List<String> lines = FileUtils.readLines(categoryFile, "UTF-8");
-            Set<Category> categories = new HashSet<>();
-            for (String line : lines) {
-                try {
-                    Category category = objectMapper.readValue(line, Category.class);
-                    categories.add(category);
-                } catch (JsonProcessingException e) {
-                    LOGGER.error("Error parsing category JSON: " + e.getMessage(), e);
-                }
-            }
-            return categories;
+            return lines.stream()
+                    .map(line -> {
+                        try {
+                            return objectMapper.readValue(line, Category.class);
+                        } catch (JsonProcessingException e) {
+                            LOGGER.error("Error parsing category JSON: " + e.getMessage(), e);
+                            return null;
+                        }
+                    })
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toSet());
         } catch (IOException e) {
             LOGGER.error("Error reading categories file: " + e.getMessage(), e);
             return Collections.emptySet();
@@ -71,16 +73,18 @@ public class FileHandler {
     public Map<Product, Integer> loadProducts() {
         try {
             List<String> lines = FileUtils.readLines(productFile, "UTF-8");
-            Map<Product, Integer> products = new HashMap<>();
-            for (String line : lines) {
-                try {
-                    Product product = objectMapper.readValue(line, Product.class);
-                    products.put(product, product.getStockQuantity());
-                } catch (JsonProcessingException e) {
-                    LOGGER.error("Error parsing product JSON: " + e.getMessage(), e);
-                }
-            }
-            return products;
+            return lines.stream()
+                    .map(line -> {
+                        try {
+                            Product product = objectMapper.readValue(line, Product.class);
+                            return new AbstractMap.SimpleEntry<>(product, product.getStockQuantity());
+                        } catch (JsonProcessingException e) {
+                            LOGGER.error("Error parsing product JSON: " + e.getMessage(), e);
+                            return null;
+                        }
+                    })
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
         } catch (IOException e) {
             LOGGER.error("Error reading products file: " + e.getMessage(), e);
             return Collections.emptyMap();

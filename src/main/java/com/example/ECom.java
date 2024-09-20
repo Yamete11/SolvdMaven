@@ -19,6 +19,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class ECom implements Searchable {
@@ -70,10 +71,11 @@ public class ECom implements Searchable {
                 .toList();
     }
 
-    public List<Product> filterProductsByPrice(double minPrice) {
-        return productStreamSupplier.get()
+    public Optional<List<Product>> filterProductsByPrice(double minPrice) {
+        List<Product> filteredProducts = productStreamSupplier.get()
                 .filter(product -> product.getPrice() >= minPrice)
                 .toList();
+        return filteredProducts.isEmpty() ? Optional.empty() : Optional.of(filteredProducts);
     }
 
     public void addUser(User user) {
@@ -109,47 +111,44 @@ public class ECom implements Searchable {
     }
 
     @Override
-    public Product searchProductByTitle(String title) {
-        for (Product product : products.keySet()) {
-            if (product.getTitle().equalsIgnoreCase(title)) {
-                LOGGER.info("Product found with title: '" + title + "'");
-                return product;
-            }
-        }
-        LOGGER.info("No product found with the title: '" + title + "'");
-        return null;
+    public Optional<Product> searchProductByTitle(String title) {
+        return products.keySet().stream()
+                .filter(product -> product.getTitle().equalsIgnoreCase(title))
+                .findFirst();
     }
+
 
     @Override
-    public List<Product> filterProductByCategory(String category) {
-        return filterProducts(product -> product.getCategory().getTitle().equalsIgnoreCase(category));
+    public Optional<List<Product>> filterProductByCategory(String category) {
+        List<Product> filteredProducts = filterProducts(product -> product.getCategory().getTitle().equalsIgnoreCase(category));
+        return filteredProducts.isEmpty() ? Optional.empty() : Optional.of(filteredProducts);
     }
 
+
     public List<Product> filterProducts(Predicate<Product> condition) {
-        List<Product> result = new ArrayList<>();
-        for (Product product : products.keySet()) {
-            if (condition.test(product)) {
-                result.add(product);
-            }
-        }
-        return result;
+        return products.keySet().stream()
+                .filter(condition)
+                .collect(Collectors.toList());
     }
+
 
     public void printAllOrders() {
         if (orders.isEmpty()) {
             System.out.println("The list of orders is empty");
         } else {
-            orders.forEach(System.out::println);
+            orders.stream().forEach(System.out::println);
         }
     }
+
 
     public void printAllUsers() {
         if (users.isEmpty()) {
             System.out.println("The list of users is empty");
         } else {
-            users.forEach(System.out::println);
+            users.stream().forEach(System.out::println);
         }
     }
+
 
     public void printAllCategories() {
         if (categories.isEmpty()) {
@@ -158,6 +157,7 @@ public class ECom implements Searchable {
             categories.forEach(category -> System.out.println(category + "\n"));
         }
     }
+
 
     public void printAllProducts(Consumer<Product> productConsumer) {
         if (products.isEmpty()) {

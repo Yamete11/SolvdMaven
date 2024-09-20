@@ -79,9 +79,9 @@ public class UserUtils {
 
         System.out.println("Choose a category:");
         List<Category> categoryList = new ArrayList<>(categories);
-        for (int i = 0; i < categoryList.size(); i++) {
-            System.out.println("\n" + i + ": " + categoryList.get(i) + "\n");
-        }
+        categoryList.stream()
+                .forEach(category -> System.out.println(categoryList.indexOf(category) + ": " + category));
+
 
         Category category = null;
         while (category == null) {

@@ -12,14 +12,71 @@ import com.example.exception.InvalidCategoryException;
 import com.example.exception.DuplicateProductException;
 import com.example.exception.ProductOutOfStockException;
 
+import java.lang.reflect.*;
 import java.util.List;
 import java.util.Scanner;
+import java.util.function.Consumer;
 
 public class Main {
     private static boolean isRunning = true;
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
         ECom eCom = new ECom();
+        Class<?> aClass = ECom.class;
+
+        System.out.println("Fields:");
+        Field[] fields = aClass.getDeclaredFields();
+        for (Field field : fields) {
+            System.out.println("Field Name: " + field.getName());
+            System.out.println("Modifiers: " + Modifier.toString(field.getModifiers()));
+            System.out.println("Type: " + field.getType());
+        }
+
+        System.out.println("\nConstructors:");
+        Constructor<?>[] constructors = aClass.getDeclaredConstructors();
+        for (Constructor<?> constructor : constructors) {
+            System.out.println("Constructor: " + constructor.getName());
+            System.out.println("Modifiers: " + Modifier.toString(constructor.getModifiers()));
+            Class<?>[] paramTypes = constructor.getParameterTypes();
+            System.out.print("Parameters: ");
+            for (Class<?> param : paramTypes) {
+                System.out.print(param.getName() + " ");
+            }
+            System.out.println();
+        }
+
+        System.out.println("\nMethods:");
+        Method[] methods = aClass.getDeclaredMethods();
+        for (Method method : methods) {
+            System.out.println("Method Name: " + method.getName());
+            System.out.println("Return Type: " + method.getReturnType());
+            System.out.println("Modifiers: " + Modifier.toString(method.getModifiers()));
+            Class<?>[] paramTypes = method.getParameterTypes();
+            System.out.print("Parameters: ");
+            for (Class<?> param : paramTypes) {
+                System.out.print(param.getName() + " ");
+            }
+            System.out.println();
+        }
+
+
+        System.out.println("Examples: " + '\n');
+        Constructor<?> defaultConstructor = aClass.getDeclaredConstructor();
+        defaultConstructor.setAccessible(true);
+        ECom eComInstance = (ECom) defaultConstructor.newInstance();
+
+        Method printAllUsersMethod = aClass.getDeclaredMethod("printAllCategories");
+        printAllUsersMethod.setAccessible(true);
+        printAllUsersMethod.invoke(eComInstance);
+
+
+        Method printAllProductsMethod = aClass.getDeclaredMethod("printAllProducts", Consumer.class);
+        printAllProductsMethod.setAccessible(true);
+        printAllProductsMethod.invoke(eComInstance, (Consumer<Product>) product ->
+                System.out.println("Product: " + product.getTitle() + ", Stock: " + eCom.getProducts().get(product)));
+
+
+        /*ECom eCom = new ECom();
         Scanner scanner = new Scanner(System.in);
 
         displayWelcomeMessage();
@@ -33,7 +90,7 @@ public class Main {
             } else {
                 handleCommand(command, eCom);
             }
-        }
+        }*/
 
 
 
