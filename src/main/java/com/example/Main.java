@@ -20,65 +20,89 @@ import java.util.function.Consumer;
 public class Main {
     private static boolean isRunning = true;
 
-    public static void main(String[] args) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    public static void main(String[] args) throws Exception {
         ECom eCom = new ECom();
+
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Select mode:");
+        System.out.println("1: Reflection");
+        System.out.println("2: Interaction through flags");
+        int choice = scanner.nextInt();
+        scanner.nextLine();
+
+        switch (choice) {
+            case 1:
+                runReflectionMode(eCom);
+                break;
+            case 2:
+                runInteractiveMode(eCom);
+                break;
+            default:
+                System.out.println("Invalid choice. Exiting.");
+                break;
+        }
+    }
+
+    private static void runReflectionMode(ECom eCom) throws Exception {
         Class<?> aClass = ECom.class;
 
-        System.out.println("Fields:");
+        System.out.println("Fields:\n");
         Field[] fields = aClass.getDeclaredFields();
         for (Field field : fields) {
             System.out.println("Field Name: " + field.getName());
             System.out.println("Modifiers: " + Modifier.toString(field.getModifiers()));
             System.out.println("Type: " + field.getType());
+            System.out.println();
         }
 
-        System.out.println("\nConstructors:");
+        System.out.println("Constructors:\n");
         Constructor<?>[] constructors = aClass.getDeclaredConstructors();
         for (Constructor<?> constructor : constructors) {
             System.out.println("Constructor: " + constructor.getName());
             System.out.println("Modifiers: " + Modifier.toString(constructor.getModifiers()));
-            Class<?>[] paramTypes = constructor.getParameterTypes();
             System.out.print("Parameters: ");
+            Class<?>[] paramTypes = constructor.getParameterTypes();
             for (Class<?> param : paramTypes) {
                 System.out.print(param.getName() + " ");
             }
-            System.out.println();
+            System.out.println("\n");
         }
 
-        System.out.println("\nMethods:");
+        System.out.println("Methods:\n");
         Method[] methods = aClass.getDeclaredMethods();
         for (Method method : methods) {
             System.out.println("Method Name: " + method.getName());
             System.out.println("Return Type: " + method.getReturnType());
             System.out.println("Modifiers: " + Modifier.toString(method.getModifiers()));
-            Class<?>[] paramTypes = method.getParameterTypes();
             System.out.print("Parameters: ");
+            Class<?>[] paramTypes = method.getParameterTypes();
             for (Class<?> param : paramTypes) {
                 System.out.print(param.getName() + " ");
             }
-            System.out.println();
+            System.out.println("\n");
         }
 
+        invokeReflectionExamples(aClass);
+    }
 
-        System.out.println("Examples: " + '\n');
+
+    private static void invokeReflectionExamples(Class<?> aClass) throws Exception {
         Constructor<?> defaultConstructor = aClass.getDeclaredConstructor();
         defaultConstructor.setAccessible(true);
         ECom eComInstance = (ECom) defaultConstructor.newInstance();
 
-        Method printAllUsersMethod = aClass.getDeclaredMethod("printAllCategories");
-        printAllUsersMethod.setAccessible(true);
-        printAllUsersMethod.invoke(eComInstance);
-
+        Method printAllCategoriesMethod = aClass.getDeclaredMethod("printAllCategories");
+        printAllCategoriesMethod.setAccessible(true);
+        printAllCategoriesMethod.invoke(eComInstance);
 
         Method printAllProductsMethod = aClass.getDeclaredMethod("printAllProducts", Consumer.class);
         printAllProductsMethod.setAccessible(true);
         printAllProductsMethod.invoke(eComInstance, (Consumer<Product>) product ->
-                System.out.println("Product: " + product.getTitle() + ", Stock: " + eCom.getProducts().get(product)));
+                System.out.println("Product: " + product.getTitle() + ", Stock: " + eComInstance.getProducts().get(product)));
+    }
 
-
-        /*ECom eCom = new ECom();
+    private static void runInteractiveMode(ECom eCom) {
         Scanner scanner = new Scanner(System.in);
-
         displayWelcomeMessage();
 
         while (isRunning) {
@@ -90,25 +114,7 @@ public class Main {
             } else {
                 handleCommand(command, eCom);
             }
-        }*/
-
-
-
-        /*ECom eCom = new ECom();
-        eCom.printAllProducts(System.out::println);
-
-        List<Product> expensiveProducts = eCom.filterProductsByPrice(150.0);
-        expensiveProducts.forEach(System.out::println);*/
-
-        /*ECom eCom = new ECom();
-        eCom.printAllProducts(System.out::println);
-
-        List<String> productDescriptions = eCom.transformProducts(product ->
-                String.format("Product: %s, Price: %.2f, Stock: %d",
-                        product.getTitle(), product.getPrice(), product.getStockQuantity())
-        );
-
-        productDescriptions.forEach(System.out::println);*/
+        }
     }
 
     private static void handleCommand(String command, ECom eCom) {
