@@ -91,14 +91,6 @@ public class Product implements Reviewable, Taxable, Discountable {
         return totalRating / reviews.size();
     }
 
-    public void updateStock(int quantity) {
-        if (this.stockQuantity + quantity < 0) {
-            System.out.println("You cannot reduce stock below zero");
-        } else {
-            this.stockQuantity += quantity;
-            System.out.println("Stock updated successfully. New stock quantity: " + this.stockQuantity);
-        }
-    }
 
     public double calculatePriceWithVAT() {
         double vatAmount = price * (category.getVat() / 100);

@@ -55,6 +55,22 @@ public class ECom implements Searchable {
         LOGGER.info("ECom class instance created");
     }
 
+    public void changeProductStock(String productTitle, int newStock) throws ProductNotFoundException, InvalidStockException {
+        if (newStock <= 0) {
+            throw new InvalidStockException("Stock value must be greater than zero");
+        }
+
+        Optional<Product> productOpt = searchProductByTitle(productTitle);
+
+        if (productOpt.isPresent()) {
+            Product product = productOpt.get();
+            products.put(product, newStock);
+            LOGGER.info("Stock updated for product: " + productTitle + " to " + newStock);
+        } else {
+            throw new ProductNotFoundException("Product with title " + productTitle + " not found");
+        }
+    }
+
     private void loadData() {
         this.categories = fileHandler.loadCategories();
         this.products = fileHandler.loadProducts();

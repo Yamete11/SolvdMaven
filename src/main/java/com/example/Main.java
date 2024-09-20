@@ -23,6 +23,8 @@ public class Main {
     public static void main(String[] args) throws Exception {
         ECom eCom = new ECom();
 
+        eCom.addProduct(new Product("title"));
+
         Scanner scanner = new Scanner(System.in);
         System.out.println("Select mode:");
         System.out.println("1: Reflection");
@@ -38,7 +40,7 @@ public class Main {
                 runInteractiveMode(eCom);
                 break;
             default:
-                System.out.println("Invalid choice. Exiting.");
+                System.out.println("Invalid choice. Bye");
                 break;
         }
     }
