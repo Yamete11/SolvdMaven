@@ -30,7 +30,7 @@ public class Main {
     public static void main(String[] args) throws DuplicateProductException, InterruptedException {
 
         //Task 1
-        /*Thread thread1 = new ThreadWay();
+        Thread thread1 = new ThreadWay();
         Thread thread2 = new ThreadWay();
 
         thread1.start();
@@ -50,7 +50,7 @@ public class Main {
             e.printStackTrace();
         }
 
-        System.out.println("All threads have completed execution");*/
+        System.out.println("All threads have completed execution");
 
         //Task 4
 
@@ -73,7 +73,7 @@ public class Main {
                         connectionPool.releaseConnection(connection);
                     }
                 } else {
-                    System.out.println("Thread-" + threadId + " could not acquire a connection.");
+                    System.out.println("Thread-" + threadId + " could not acquire a connection");
                 }
             }).exceptionally(ex -> {
                 System.err.println("Error acquiring connection: " + ex.getMessage());

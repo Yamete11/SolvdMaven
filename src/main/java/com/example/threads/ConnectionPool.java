@@ -4,6 +4,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.IntStream;
 
 public class ConnectionPool {
     private static ConnectionPool connectionPoolInstance;
@@ -13,9 +14,8 @@ public class ConnectionPool {
 
     private ConnectionPool() {
         this.availableConnections = new ArrayBlockingQueue<>(poolSize);
-        for (int i = 0; i < poolSize; i++) {
-            availableConnections.add(new Connection("Connection-" + connectionIdGenerator.getAndIncrement()));
-        }
+        IntStream.range(0, poolSize)
+                .forEach(i -> availableConnections.add(new Connection("Connection-" + connectionIdGenerator.getAndIncrement())));
     }
 
     public static synchronized ConnectionPool getInstance() {
