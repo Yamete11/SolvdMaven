@@ -9,32 +9,35 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 public class Product implements Reviewable, Taxable, Discountable {
     private String title;
     private double price;
-    private int stockQuantity;
     private Category category;
     private List<Review> reviews;
     private double taxRate;
     private double discountPercentage;
+    private int stockQuantity;
 
     public Product() {
         this.reviews = new ArrayList<>();
     }
 
-    public Product(String title, double price, int stockQuantity, Category category) {
+    public Product(String title, double price, Category category, int stockQuantity) {
         this.title = title;
         this.price = price;
-        this.stockQuantity = stockQuantity;
         this.category = category;
         this.reviews = new ArrayList<>();
         this.taxRate = category.getVat();
+        this.stockQuantity = stockQuantity;
     }
 
-    public Product(String title, double price, Category category) {
-        this(title, price, 0, category);
+    public int getStockQuantity() {
+        return stockQuantity;
+    }
+
+    public void setStockQuantity(int stockQuantity) {
+        this.stockQuantity = stockQuantity;
     }
 
     public String toJson() throws JsonProcessingException {
@@ -83,14 +86,11 @@ public class Product implements Reviewable, Taxable, Discountable {
 
     @Override
     public double getAverageRating() {
-        if (reviews.isEmpty()) return 0.0;
-        double totalRating = 0.0;
-        for (Review review : reviews) {
-            totalRating += review.getRating().getRating();
-        }
-        return totalRating / reviews.size();
+        return reviews.stream()
+                .mapToDouble(review -> review.getRating().getRating())
+                .average()
+                .orElse(0.0);
     }
-
 
     public double calculatePriceWithVAT() {
         double vatAmount = price * (category.getVat() / 100);
@@ -108,9 +108,8 @@ public class Product implements Reviewable, Taxable, Discountable {
                 "Reviews:\n");
 
         if (reviews != null && !reviews.isEmpty()) {
-            for (Review review : reviews) {
-                productInfo.append(review.toString()).append("\n\n");
-            }
+            reviews.stream()
+                    .forEach(review -> productInfo.append(review.toString()).append("\n\n"));
         } else {
             productInfo.append("No reviews available.\n");
         }
@@ -124,10 +123,6 @@ public class Product implements Reviewable, Taxable, Discountable {
 
     public void setPrice(double price) {
         this.price = price;
-    }
-
-    public void setStockQuantity(int stockQuantity) {
-        this.stockQuantity = stockQuantity;
     }
 
     public void setCategory(Category category) {
@@ -147,10 +142,6 @@ public class Product implements Reviewable, Taxable, Discountable {
         return price;
     }
 
-    public int getStockQuantity() {
-        return stockQuantity;
-    }
-
     public Category getCategory() {
         return category;
     }
@@ -161,7 +152,7 @@ public class Product implements Reviewable, Taxable, Discountable {
 
     @Override
     public int hashCode() {
-        return Objects.hash(title, price, stockQuantity, category);
+        return Objects.hash(title, price, category);
     }
 
     @Override
@@ -170,7 +161,6 @@ public class Product implements Reviewable, Taxable, Discountable {
         if (o == null || getClass() != o.getClass()) return false;
         Product product = (Product) o;
         return Double.compare(product.price, price) == 0 &&
-                stockQuantity == product.stockQuantity &&
                 title.equals(product.title) &&
                 category.equals(product.category);
     }

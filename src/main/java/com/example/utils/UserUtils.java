@@ -98,7 +98,7 @@ public class UserUtils {
             }
         }
 
-        Product product = new Product(title, price, stockQuantity, category);
+        Product product = new Product(title, price, category, stockQuantity);
         System.out.println("Product created: " + product);
         return product;
     }

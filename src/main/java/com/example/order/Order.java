@@ -49,23 +49,17 @@ public class Order implements Taxable, Discountable {
 
     @Override
     public double calculateTax() {
-        double totalTax = 0.0;
-        for (OrderItem item : orderItems) {
-            totalTax += item.getProduct().calculateTax() * item.getQuantity();
-        }
-        return totalTax;
+        return orderItems.stream()
+                .mapToDouble(item -> item.getProduct().calculateTax() * item.getQuantity())
+                .sum();
     }
 
     @Override
     public double getAverageTaxRate() {
-        double totalTaxRate = 0.0;
-        int itemCount = 0;
-
-        for (OrderItem item : orderItems) {
-            totalTaxRate += item.getProduct().getAverageTaxRate();
-            itemCount++;
-        }
-        return itemCount > 0 ? totalTaxRate / itemCount : 0.0;
+        return orderItems.stream()
+                .mapToDouble(item -> item.getProduct().getAverageTaxRate())
+                .average()
+                .orElse(0.0);
     }
 
     public void addItem(Product product, int quantity) {
@@ -75,10 +69,9 @@ public class Order implements Taxable, Discountable {
     }
 
     public double calculateTotalAmount() {
-        totalAmount = 0.0;
-        for (OrderItem item : orderItems) {
-            totalAmount += item.getTotalPrice();
-        }
+        totalAmount = orderItems.stream()
+                .mapToDouble(OrderItem::getTotalPrice)
+                .sum();
         return totalAmount;
     }
 
@@ -106,7 +99,6 @@ public class Order implements Taxable, Discountable {
         return orderStatus;
     }
 
-
     @Override
     public String toString() {
         StringBuilder orderInfo = new StringBuilder("Order Date: " + orderDate + '\n' +
@@ -115,9 +107,8 @@ public class Order implements Taxable, Discountable {
                 "Order Status: " + orderStatus + '\n' +
                 "Items: \n");
 
-        for (OrderItem item : orderItems) {
-            orderInfo.append(item).append('\n');
-        }
+        orderItems.stream()
+                .forEach(item -> orderInfo.append(item).append('\n'));
 
         return orderInfo.toString();
     }

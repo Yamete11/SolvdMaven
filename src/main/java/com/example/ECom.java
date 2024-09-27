@@ -4,7 +4,6 @@ import com.example.fileHandler.FileHandler;
 import com.example.order.Order;
 import com.example.custom.CustomLinkedList;
 import com.example.exception.*;
-import com.example.order.Order;
 import com.example.product.Category;
 import com.example.product.Product;
 import com.example.user.User;
@@ -20,10 +19,8 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class ECom implements Searchable {
-    private Supplier<Stream<Product>> productStreamSupplier;
     private static final Logger LOGGER = LoggerFactory.getLogger(ECom.class);
     private List<Order> orders;
     private List<User> users;
@@ -33,13 +30,11 @@ public class ECom implements Searchable {
 
     private final FileHandler fileHandler = new FileHandler();
 
-
     public ECom(List<Order> orders, List<User> users, Set<Category> categories) {
         this.orders = orders;
         this.users = users;
         this.categories = categories;
         this.products = new HashMap<>();
-        this.productStreamSupplier = () -> products.keySet().stream();
         EComInstance++;
         LOGGER.info("ECom class instance created");
     }
@@ -49,15 +44,14 @@ public class ECom implements Searchable {
         this.users = new ArrayList<>();
         this.categories = new HashSet<>();
         this.products = new HashMap<>();
-        this.productStreamSupplier = () -> products.keySet().stream();
         EComInstance++;
         loadData();
         LOGGER.info("ECom class instance created");
     }
 
     public void changeProductStock(String productTitle, int newStock) throws ProductNotFoundException, InvalidStockException {
-        if (newStock <= 0) {
-            throw new InvalidStockException("Stock value must be greater than zero");
+        if (newStock < 0) {
+            throw new InvalidStockException("Stock quantity cannot be less than 0");
         }
 
         Optional<Product> productOpt = searchProductByTitle(productTitle);
@@ -65,7 +59,7 @@ public class ECom implements Searchable {
         if (productOpt.isPresent()) {
             Product product = productOpt.get();
             products.put(product, newStock);
-            LOGGER.info("Stock updated for product: " + productTitle + " to " + newStock);
+            LOGGER.info("Stock updated for product: {} to {}", productTitle, newStock);
         } else {
             throw new ProductNotFoundException("Product with title " + productTitle + " not found");
         }
@@ -82,13 +76,13 @@ public class ECom implements Searchable {
     }
 
     public List<String> transformProducts(Function<Product, String> transformer) {
-        return productStreamSupplier.get()
+        return products.keySet().stream()
                 .map(transformer)
                 .toList();
     }
 
     public Optional<List<Product>> filterProductsByPrice(double minPrice) {
-        List<Product> filteredProducts = productStreamSupplier.get()
+        List<Product> filteredProducts = products.keySet().stream()
                 .filter(product -> product.getPrice() >= minPrice)
                 .toList();
         return filteredProducts.isEmpty() ? Optional.empty() : Optional.of(filteredProducts);
@@ -114,17 +108,24 @@ public class ECom implements Searchable {
         }
     }
 
-    public void addProduct(Product product, int stockQuantity) throws DuplicateProductException {
-        if (stockQuantity <= 0) {
-            throw new ProductOutOfStockException("Product stock must be greater than zero");
+    public void addProduct(Supplier<Product> productSupplier, int stockQuantity) throws DuplicateProductException {
+        if (stockQuantity < 0) {
+            throw new ProductOutOfStockException("Product stock cannot be less than 0");
         }
-        if (this.products.containsKey(product)) {
+
+        Product product = productSupplier.get();
+
+        if (products.keySet().stream()
+                .anyMatch(existingProduct -> existingProduct.getTitle().equalsIgnoreCase(product.getTitle()))) {
             throw new DuplicateProductException("Product with title " + product.getTitle() + " already exists");
         }
-        this.products.put(product, stockQuantity);
-        LOGGER.info("Product added successfully with stock quantity: " + stockQuantity);
+
+        products.put(product, stockQuantity);
+        LOGGER.info("Product added successfully: {}, Stock Quantity: {}", product.getTitle(), stockQuantity);
+
         fileHandler.saveProduct(product);
     }
+
 
     @Override
     public Optional<Product> searchProductByTitle(String title) {
@@ -133,20 +134,17 @@ public class ECom implements Searchable {
                 .findFirst();
     }
 
-
     @Override
     public Optional<List<Product>> filterProductByCategory(String category) {
         List<Product> filteredProducts = filterProducts(product -> product.getCategory().getTitle().equalsIgnoreCase(category));
         return filteredProducts.isEmpty() ? Optional.empty() : Optional.of(filteredProducts);
     }
 
-
     public List<Product> filterProducts(Predicate<Product> condition) {
         return products.keySet().stream()
                 .filter(condition)
                 .collect(Collectors.toList());
     }
-
 
     public void printAllOrders() {
         if (orders.isEmpty()) {
@@ -156,7 +154,6 @@ public class ECom implements Searchable {
         }
     }
 
-
     public void printAllUsers() {
         if (users.isEmpty()) {
             System.out.println("The list of users is empty");
@@ -165,7 +162,6 @@ public class ECom implements Searchable {
         }
     }
 
-
     public void printAllCategories() {
         if (categories.isEmpty()) {
             System.out.println("The list of categories is empty");
@@ -173,7 +169,6 @@ public class ECom implements Searchable {
             categories.forEach(category -> System.out.println(category + "\n"));
         }
     }
-
 
     public void printAllProducts(Consumer<Product> productConsumer) {
         if (products.isEmpty()) {
@@ -258,11 +253,13 @@ public class ECom implements Searchable {
         if (products.isEmpty()) {
             sb.append("The list of products is empty\n");
         } else {
-            for (Map.Entry<Product, Integer> entry : products.entrySet()) {
-                Product product = entry.getKey();
-                int stock = entry.getValue();
-                sb.append(product).append(", Stock: ").append(stock).append("\n");
-            }
+            products.entrySet().stream()
+                    .forEach(entry -> {
+                        Product product = entry.getKey();
+                        int stock = entry.getValue();
+                        sb.append(product).append(", Stock: ").append(stock).append("\n");
+                    });
+
         }
 
         sb.append("\nTotal Revenue: $").append(calculateTotalRevenue()).append("\n");

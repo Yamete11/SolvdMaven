@@ -1,5 +1,7 @@
 package com.example.user;
 
+import java.util.Arrays;
+
 public enum Role {
     SYSTEM_ADMIN("System Administrator"),
     MANAGER("Manager");
@@ -15,12 +17,10 @@ public enum Role {
     }
 
     public static Role fromString(String input) {
-        for (Role role : Role.values()) {
-            if (role.name().equalsIgnoreCase(input) || role.getDescription().equalsIgnoreCase(input)) {
-                return role;
-            }
-        }
-        throw new IllegalArgumentException("Invalid role: " + input);
+        return Arrays.stream(Role.values())
+                .filter(role -> role.name().equalsIgnoreCase(input) || role.getDescription().equalsIgnoreCase(input))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Invalid role: " + input));
     }
 
     @Override

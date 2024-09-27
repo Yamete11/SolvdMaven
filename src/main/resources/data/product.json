@@ -1,2 +1,2 @@
-{"title":"book","price":1000.0,"stockQuantity":5,"category":{"title":"book","vat":12.0},"reviews":[],"averageRating":0.0,"averageTaxRate":12.0}
-{"title":"Laptop","price":120.0,"stockQuantity":5,"category":{"title":"book","vat":12.0},"reviews":[],"averageRating":0.0,"averageTaxRate":12.0}
+{"title":"bla","price":10.0,"category":{"title":"category","vat":12.0},"reviews":[],"stockQuantity":15,"averageRating":0.0,"averageTaxRate":12.0}
+{"title":"hello","price":10.0,"category":{"title":"category","vat":12.0},"reviews":[],"stockQuantity":100,"averageRating":0.0,"averageTaxRate":12.0}

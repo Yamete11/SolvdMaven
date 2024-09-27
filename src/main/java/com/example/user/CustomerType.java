@@ -1,5 +1,7 @@
 package com.example.user;
 
+import java.util.Arrays;
+
 public enum CustomerType {
     REGULAR("Regular Customer", 0.0),
     LOYAL("Loyal Customer", 5.0),
@@ -22,12 +24,9 @@ public enum CustomerType {
     }
 
     public static CustomerType fromString(String type) {
-        for (CustomerType ct : values()) {
-            if (ct.name().equalsIgnoreCase(type)) {
-                return ct;
-            }
-        }
-        throw new IllegalArgumentException("No enum constant for customer type " + type);
+        return Arrays.stream(values())
+                .filter(ct -> ct.name().equalsIgnoreCase(type))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("No enum constant for customer type " + type));
     }
 }
-

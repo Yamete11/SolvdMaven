@@ -1,5 +1,7 @@
 package com.example.product;
 
+import java.util.Arrays;
+
 public enum ReviewRating {
     ONE_STAR("Very Poor", 1),
     TWO_STAR("Poor", 2),
@@ -24,12 +26,9 @@ public enum ReviewRating {
     }
 
     public static ReviewRating fromRating(int rating) {
-        for (ReviewRating rr : values()) {
-            if (rr.rating == rating) {
-                return rr;
-            }
-        }
-        throw new IllegalArgumentException("No enum constant for rating " + rating);
+        return Arrays.stream(values())
+                .filter(rr -> rr.rating == rating)
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("No enum constant for rating " + rating));
     }
 }
-
